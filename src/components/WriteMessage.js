@@ -22,27 +22,36 @@ export default class WriteMessage extends Component {
     });
   }
 
+  componentWillMount () {
+    this._loadUsername()
+  }
+
+  componentDidMount () {
+    this.messageInput.focus();
+  }
+
+  _saveUsername (userName) {
+    localStorage.setItem('username', userName);
+  }
+
+  _loadUsername () {
+    const userName = localStorage.getItem('username');
+    userName && this.setState({'userName': userName});
+  }
+
+  handleBlur () {
+    this._saveUsername(this.state.userName);
+  }
+
   submitMessage (evt) {
     evt.preventDefault();
     let name = this.state.userName;
     let content = this.state.messageContent;
-    if (!name) {
-      alert('请输入用户名');
-      return
-    }
-    if (!content) {
-      alert('请输入评论内容')
-      return
-    }
-    this.props.addMessage(name, content);
-    this.setState({
-      messageContent: ''
-    });
+    if (!name) return alert('请输入用户名');
+    if (!content) return alert('请输入评论内容');
+    this.props.onSubmit(name, content, new Date().getTime());
+    this.setState({messageContent: ''});
     this.messageInput.focus();
-  }
-
-  componentDidMount() {
-    this.userNameInput.focus();
   }
 
   render () {
@@ -54,6 +63,7 @@ export default class WriteMessage extends Component {
             ref={(input) => this.userNameInput = input}
             value={this.state.userName}
             onChange={this.inputUserName.bind(this)}
+            onBlur={this.handleBlur.bind(this)}
             type="text"
           />
         </div>
